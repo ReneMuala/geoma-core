@@ -3,251 +3,455 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>geoma — friendly docs</title>
+<title>geoma — documentation</title>
+<script>
+  // Apply the saved theme before first paint to avoid a flash.
+  (function () {
+    var saved = null;
+    try { saved = localStorage.getItem('geoma-theme'); } catch (e) {}
+    var theme = saved || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+  })();
+</script>
 <style>
+  /* ======================= tokens ======================= */
   :root{
-    --accent:#ff7400;          /* the orange geoma draws its roads with */
-    --accent-soft:#fff1e6;
-    --accent-strong:#e06200;
-    --blue:#1a56db;            /* the blue geoma paints its dots with */
-    --ink:#1e293b;
-    --ink-soft:#475569;
-    --ink-faint:#94a3b8;
-    --paper:#fffdf9;
-    --card:#ffffff;
-    --line:#e7e2d8;
-    --code-bg:#101828;
-    --code-ink:#e2e8f0;
-    --code-accent:#ffb27a;
+    --accent:#c2570a;
+    --accent-strong:#9a4306;
+    --accent-soft:#fdf1e7;
+    --accent-border:#f0d3b8;
+    --blue:#1c5cd6;
+    --blue-soft:#eef3fe;
+    --green:#1d7a3f;
+    --green-soft:#e8f6ec;
+    --purple:#6d3fc0;
+    --purple-soft:#f1eafd;
+    --amber:#94580a;
+    --amber-soft:#fdf6e5;
+    --amber-border:#eed9a8;
+    --bg:#ffffff;
+    --bg-subtle:#f8f9fa;
+    --bg-muted:#f1f3f5;
+    --surface:#ffffff;
+    --border:#e2e5ea;
+    --border-strong:#cfd5dc;
+    --text:#1a1e24;
+    --text-secondary:#55606c;
+    --text-faint:#8a94a0;
+    --inline-code-bg:#f3f0ea;
+    --inline-code-fg:#8a4b0f;
+    --hero-glow-a:rgba(194,87,10,.10);
+    --hero-glow-b:rgba(28,92,214,.07);
+    --row-hover:#faf7f2;
+    --shadow:0 1px 2px rgba(16,24,40,.05);
+    --shadow-lift:0 4px 14px rgba(16,24,40,.08);
+    --code-bg:#0d1420;
+    --code-header:#0a101b;
+    --code-ink:#dbe4f0;
+    --code-accent:#ffab70;
     --code-green:#8fd4a0;
     --code-blue:#8ab8ff;
-    --code-gray:#6b7a90;
-    --radius:14px;
+    --code-gray:#67748a;
+    --code-num:#f8c66a;
+    --radius:10px;
+    --radius-lg:16px;
+    --topbar-h:56px;
     --mono:"SFMono-Regular",ui-monospace,"Cascadia Mono",Consolas,Menlo,monospace;
+    --sans:"Inter","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
   }
+  [data-theme="dark"]{
+    --accent:#f08c3e;
+    --accent-strong:#f5a763;
+    --accent-soft:rgba(240,140,62,.12);
+    --accent-border:rgba(240,140,62,.32);
+    --blue:#7aa5f0;
+    --blue-soft:rgba(122,165,240,.12);
+    --green:#5dbf82;
+    --green-soft:rgba(93,191,130,.12);
+    --purple:#b28de8;
+    --purple-soft:rgba(178,141,232,.12);
+    --amber:#e3b34f;
+    --amber-soft:rgba(227,179,79,.10);
+    --amber-border:rgba(227,179,79,.30);
+    --bg:#0e1319;
+    --bg-subtle:#11161d;
+    --bg-muted:#171d26;
+    --surface:#141a22;
+    --border:#242e3a;
+    --border-strong:#333f4e;
+    --text:#e2e8f0;
+    --text-secondary:#9aa7b5;
+    --text-faint:#5f6b7a;
+    --inline-code-bg:#1d2530;
+    --inline-code-fg:#f0b27a;
+    --hero-glow-a:rgba(240,140,62,.10);
+    --hero-glow-b:rgba(122,165,240,.07);
+    --row-hover:#18202a;
+    --shadow:0 1px 2px rgba(0,0,0,.25);
+    --shadow-lift:0 6px 18px rgba(0,0,0,.35);
+    --code-bg:#0a0f16;
+    --code-header:#070b11;
+  }
+  /* ======================= base ======================= */
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
   body{
     margin:0;
-    font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
-    color:var(--ink);
-    background:var(--paper);
+    font-family:var(--sans);
+    color:var(--text);
+    background:var(--bg);
     line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+    transition:background-color .18s ease,color .18s ease;
   }
-  /* ---------- layout ---------- */
+  ::selection{background:var(--accent-soft);color:var(--accent-strong)}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+  /* ======================= layout ======================= */
   .wrap{display:flex;min-height:100vh}
+  main{flex:1;min-width:0;padding:0 48px 96px;max-width:1060px}
+  section{margin-top:64px;scroll-margin-top:32px}
+  /* ======================= sidebar ======================= */
   nav.toc{
-    width:250px;flex:0 0 250px;
+    width:264px;flex:0 0 264px;
     position:sticky;top:0;align-self:flex-start;
     height:100vh;overflow-y:auto;
-    padding:28px 18px 40px;
-    border-right:1px solid var(--line);
-    background:#fffefb;
+    padding:24px 16px 40px;
+    border-right:1px solid var(--border);
+    background:var(--bg-subtle);
+    scrollbar-width:thin;
   }
-  .brand{font-weight:800;font-size:1.25rem;letter-spacing:.5px;color:var(--ink);text-decoration:none}
+  .brand{display:inline-block;font-weight:800;font-size:1.3rem;letter-spacing:-.02em;color:var(--text);text-decoration:none}
+  .brand:hover{text-decoration:none}
   .brand .dot{color:var(--accent)}
-  .brand small{display:block;font-weight:500;font-size:.72rem;color:var(--ink-faint);letter-spacing:.14em;text-transform:uppercase;margin-top:2px}
-  nav.toc ul{list-style:none;margin:22px 0 0;padding:0}
-  nav.toc li{margin:2px 0}
+  .brand small{display:block;font-weight:600;font-size:.68rem;color:var(--text-faint);letter-spacing:.14em;text-transform:uppercase;margin-top:2px}
+  nav.toc ul{list-style:none;margin:20px 0 0;padding:0}
+  nav.toc li{margin:1px 0}
   nav.toc a{
-    display:block;padding:7px 12px;border-radius:9px;
-    color:var(--ink-soft);text-decoration:none;font-size:.92rem;
+    display:block;padding:6px 12px;border-radius:8px;
+    color:var(--text-secondary);text-decoration:none;font-size:.9rem;
     border-left:3px solid transparent;
+    transition:background-color .12s ease,color .12s ease;
   }
-  nav.toc a:hover{background:var(--accent-soft);color:var(--accent-strong)}
+  nav.toc a:hover{background:var(--bg-muted);color:var(--text);text-decoration:none}
   nav.toc a.active{background:var(--accent-soft);color:var(--accent-strong);border-left-color:var(--accent);font-weight:600}
-  nav.toc .group{margin-top:18px;padding:0 12px;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
-  main{flex:1;min-width:0;padding:0 48px 90px;max-width:1080px}
-  @media (max-width:900px){
-    .wrap{flex-direction:column}
-    nav.toc{position:static;width:auto;flex:auto;height:auto;border-right:none;border-bottom:1px solid var(--line)}
-    main{padding:0 20px 60px}
+  nav.toc .group{margin:22px 0 6px;padding:0 12px;font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint)}
+  .toc-footer{margin-top:28px;padding:14px 12px 0;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+  .toc-footer span{font-size:.75rem;color:var(--text-faint)}
+  /* ======================= top bar (mobile) ======================= */
+  .topbar{
+    display:none;position:sticky;top:0;z-index:60;
+    height:var(--topbar-h);align-items:center;gap:10px;
+    padding:0 16px;border-bottom:1px solid var(--border);
+    background:var(--bg);
+    background:color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
   }
-  /* ---------- hero ---------- */
+  .topbar .brand{font-size:1.1rem}
+  .topbar .spacer{flex:1}
+  .icon-btn{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:36px;height:36px;border-radius:8px;cursor:pointer;
+    border:1px solid var(--border);background:var(--surface);color:var(--text-secondary);
+    transition:background-color .12s ease,color .12s ease,border-color .12s ease;
+  }
+  .icon-btn:hover{background:var(--bg-muted);color:var(--text)}
+  .icon-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .backdrop{display:none;position:fixed;inset:0;z-index:70;background:rgba(10,14,20,.45)}
+  /* ======================= theme toggle icon swap ======================= */
+  .icon-sun{display:none}
+  [data-theme="dark"] .icon-sun{display:block}
+  [data-theme="dark"] .icon-moon{display:none}
+  /* ======================= hero ======================= */
   header.hero{
-    margin:56px 0 30px;
-    padding:52px 48px;
-    border-radius:24px;
+    margin:40px 0 8px;
+    padding:48px 44px;
+    border-radius:var(--radius-lg);
     background:
-      radial-gradient(900px 340px at 85% -40%, rgba(255,116,0,.16), transparent 60%),
-      radial-gradient(700px 300px at 0% 120%, rgba(26,86,219,.10), transparent 55%),
-      linear-gradient(180deg,#fffdf8,#fff6ec);
-    border:1px solid var(--line);
+      radial-gradient(900px 320px at 88% -40%, var(--hero-glow-a), transparent 60%),
+      radial-gradient(700px 300px at 0% 125%, var(--hero-glow-b), transparent 55%),
+      var(--surface);
+    border:1px solid var(--border);
   }
-  header.hero h1{margin:0 0 6px;font-size:2.6rem;letter-spacing:-.5px}
+  header.hero h1{margin:0 0 10px;font-size:2.5rem;letter-spacing:-.03em;line-height:1.15}
   header.hero h1 .dot{color:var(--accent)}
-  header.hero p.tag{font-size:1.18rem;color:var(--ink-soft);max-width:640px;margin:6px 0 26px}
-  .hero-badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px}
-  .badge{font-size:.75rem;font-weight:600;letter-spacing:.04em;padding:4px 11px;border-radius:999px;background:#fff;border:1px solid var(--line);color:var(--ink-soft)}
-  .badge.orange{background:var(--accent-soft);border-color:#ffd9b8;color:var(--accent-strong)}
+  header.hero p.tag{font-size:1.13rem;color:var(--text-secondary);max-width:660px;margin:0 0 26px}
+  .hero-badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+  .badge{font-size:.72rem;font-weight:600;letter-spacing:.03em;padding:4px 11px;border-radius:999px;background:var(--surface);border:1px solid var(--border);color:var(--text-secondary)}
+  .badge.orange{background:var(--accent-soft);border-color:var(--accent-border);color:var(--accent-strong)}
   .cta{display:flex;gap:12px;flex-wrap:wrap}
-  .btn{display:inline-block;padding:11px 22px;border-radius:11px;font-weight:700;font-size:.95rem;text-decoration:none;transition:.15s}
+  .btn{display:inline-block;padding:11px 22px;border-radius:9px;font-weight:600;font-size:.93rem;text-decoration:none;transition:background-color .14s ease,border-color .14s ease,color .14s ease}
+  .btn:hover{text-decoration:none}
   .btn.primary{background:var(--accent);color:#fff}
   .btn.primary:hover{background:var(--accent-strong)}
-  .btn.ghost{border:1.5px solid var(--line);color:var(--ink)}
+  [data-theme="dark"] .btn.primary{color:#10151c}
+  .btn.ghost{border:1px solid var(--border-strong);color:var(--text);background:transparent}
   .btn.ghost:hover{border-color:var(--accent);color:var(--accent-strong)}
-  /* ---------- sections ---------- */
-  section{margin-top:56px;scroll-margin-top:24px}
-  h2{font-size:1.55rem;letter-spacing:-.3px;margin:0 0 6px;padding-top:8px}
-  h2 .kicker{display:block;font-size:.72rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-strong);margin-bottom:4px}
-  h3{font-size:1.12rem;margin:30px 0 8px}
-  p{color:var(--ink-soft)}
-  p strong,li strong{color:var(--ink)}
-  .lead{font-size:1.03rem}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px;margin:16px 0}
-  .grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin:18px 0}
+  /* ======================= typography ======================= */
+  h2{font-size:1.5rem;letter-spacing:-.02em;margin:0 0 8px;padding-top:8px;position:relative}
+  h2 .kicker{display:block;font-size:.7rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+  h3{font-size:1.1rem;margin:32px 0 8px;position:relative}
+  p{color:var(--text-secondary);margin:12px 0}
+  p strong,li strong{color:var(--text)}
+  .lead{font-size:1.04rem}
+  ul{color:var(--text-secondary)}
+  ul li{margin:5px 0}
+  .anchor{
+    position:absolute;left:-1.1em;opacity:0;font-weight:400;color:var(--text-faint);
+    text-decoration:none;transition:opacity .12s ease;padding:0 .2em;
+  }
+  h2:hover .anchor,h3:hover .anchor{opacity:1}
+  .anchor:hover{color:var(--accent);text-decoration:none}
+  /* ======================= cards & grids ======================= */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;margin:16px 0;box-shadow:var(--shadow)}
+  .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));margin:18px 0}
   .grid .card{margin:0}
-  .card h4{margin:0 0 6px;font-size:1rem}
-  .card p{margin:0;font-size:.93rem}
-  .callout{display:flex;gap:12px;border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:10px;padding:14px 16px;margin:16px 0;font-size:.95rem;color:var(--ink-soft)}
-  .callout.blue{border-left-color:var(--blue);background:#eef3fe}
-  .callout .icon{font-size:1.1rem;line-height:1.4}
-  /* ---------- pipeline ---------- */
-  .pipeline{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;margin:22px 0}
-  .stage{flex:1 1 150px;min-width:150px;text-align:center;padding:16px 10px;border-radius:14px;background:#fff;border:1px dashed var(--line);margin:4px}
-  .stage .num{width:30px;height:30px;line-height:30px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;margin:0 auto 8px}
-  .stage h5{margin:2px 0 4px;font-size:.95rem}
-  .stage p{margin:0;font-size:.8rem}
-  .arrow{align-self:center;font-size:1.3rem;color:var(--accent);margin:0 2px}
-  /* ---------- code ---------- */
-  .code{position:relative;background:var(--code-bg);color:var(--code-ink);border-radius:12px;margin:14px 0;overflow:hidden}
-  .code header{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;background:#0b1220;font-size:.75rem;color:var(--code-gray);font-family:var(--mono)}
-  .code pre{margin:0;padding:16px 18px;overflow-x:auto;font-family:var(--mono);font-size:.86rem;line-height:1.6}
-  .copy{background:transparent;border:1px solid #2c3a52;color:var(--code-gray);border-radius:7px;padding:2px 10px;font-size:.72rem;cursor:pointer;font-family:var(--mono)}
+  .card h4{margin:0 0 6px;font-size:.98rem}
+  .card p{margin:0;font-size:.92rem}
+  .card{transition:border-color .14s ease,box-shadow .14s ease}
+  .grid .card:hover{border-color:var(--border-strong);box-shadow:var(--shadow-lift)}
+  /* ======================= callouts ======================= */
+  .callout{
+    border:1px solid var(--accent-border);border-left:4px solid var(--accent);
+    background:var(--accent-soft);border-radius:8px;
+    padding:14px 18px;margin:18px 0;font-size:.94rem;color:var(--text-secondary);
+  }
+  .callout strong{color:var(--text)}
+  .callout .label{
+    display:block;font-size:.68rem;font-weight:700;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--accent-strong);margin-bottom:4px;
+  }
+  .callout.note{border-color:var(--blue);border-left-width:4px;background:var(--blue-soft)}
+  .callout.note .label{color:var(--blue)}
+  .callout.warn{border-color:var(--amber-border);background:var(--amber-soft)}
+  .callout.warn .label{color:var(--amber)}
+  .callout p{margin:0}
+  /* ======================= pipeline ======================= */
+  .pipeline{display:flex;align-items:stretch;flex-wrap:wrap;margin:24px 0;gap:8px}
+  .stage{
+    flex:1 1 150px;min-width:150px;text-align:center;padding:18px 12px;
+    border-radius:var(--radius);background:var(--surface);border:1px solid var(--border);
+  }
+  .stage .num{
+    width:28px;height:28px;line-height:28px;border-radius:50%;
+    background:var(--accent);color:#fff;font-weight:700;font-size:.85rem;margin:0 auto 10px;
+  }
+  [data-theme="dark"] .stage .num{color:#10151c}
+  .stage h5{margin:0 0 4px;font-size:.93rem}
+  .stage p{margin:0;font-size:.8rem;color:var(--text-faint)}
+  .arrow{align-self:center;font-size:1.15rem;color:var(--text-faint);padding:0 2px;user-select:none}
+  /* ======================= code ======================= */
+  .code{background:var(--code-bg);color:var(--code-ink);border-radius:var(--radius);margin:16px 0;overflow:hidden;border:1px solid rgba(255,255,255,.06)}
+  .code header{display:flex;justify-content:space-between;align-items:center;padding:7px 14px;background:var(--code-header);font-size:.74rem;color:var(--code-gray);font-family:var(--mono);border-bottom:1px solid rgba(255,255,255,.05)}
+  .code pre{margin:0;padding:16px 18px;overflow-x:auto;font-family:var(--mono);font-size:.85rem;line-height:1.65;tab-size:4}
+  .copy{
+    background:transparent;border:1px solid rgba(255,255,255,.14);color:var(--code-gray);
+    border-radius:6px;padding:2px 10px;font-size:.7rem;cursor:pointer;font-family:var(--mono);
+    transition:color .12s ease,border-color .12s ease;
+  }
   .copy:hover{color:#fff;border-color:var(--accent)}
-  code{font-family:var(--mono);font-size:.87em;background:#f4efe6;border-radius:6px;padding:1.5px 6px;color:#7c3a00}
+  .copy.done{color:var(--code-green);border-color:var(--code-green)}
+  code{font-family:var(--mono);font-size:.86em;background:var(--inline-code-bg);border-radius:5px;padding:1.5px 6px;color:var(--inline-code-fg)}
   .code code{background:transparent;color:inherit;padding:0;border-radius:0}
-  .k{color:var(--code-accent)}   /* keyword  */
-  .t{color:var(--code-blue)}     /* type / ns */
-  .f{color:#fff}                 /* function call */
-  .s{color:var(--code-green)}    /* string */
-   .c{color:var(--code-gray);font-style:italic} /* comment */
-  .n{color:#f8c66a}              /* number  */
-  /* ---------- tables ---------- */
-  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:.92rem}
-  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
-  th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint)}
+  .k{color:var(--code-accent)}
+  .t{color:var(--code-blue)}
+  .f{color:#fff}
+  .s{color:var(--code-green)}
+  .c{color:var(--code-gray);font-style:italic}
+  .n{color:var(--code-num)}
+  /* ======================= tables ======================= */
+  .table-wrap{overflow-x:auto;margin:16px 0;border:1px solid var(--border);border-radius:var(--radius)}
+  table{border-collapse:collapse;width:100%;font-size:.9rem;background:var(--surface)}
+  th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  th{font-size:.7rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-faint);background:var(--bg-subtle);white-space:nowrap}
   td:first-child{white-space:nowrap}
   td code{white-space:nowrap}
-  tr:hover td{background:#fffaf3}
-  .sig{color:var(--ink-soft);font-family:var(--mono);font-size:.85rem}
-  /* ---------- misc ---------- */
-  .fig{display:flex;gap:18px;flex-wrap:wrap;margin:14px 0}
-  figure{margin:0;flex:1 1 220px;text-align:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px}
+  tbody tr{transition:background-color .1s ease}
+  tbody tr:hover td{background:var(--row-hover)}
+  .sig{color:var(--text-secondary);font-family:var(--mono);font-size:.83rem;white-space:normal}
+  /* ======================= figures ======================= */
+  .fig{display:flex;gap:16px;flex-wrap:wrap;margin:18px 0}
+  figure{margin:0;flex:1 1 220px;text-align:center;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 14px}
   figure svg{max-width:100%;height:auto}
-  figcaption{font-size:.82rem;color:var(--ink-soft);margin-top:8px}
-  ul{color:var(--ink-soft)}
-  ul li{margin:4px 0}
-  footer{margin-top:80px;padding-top:20px;border-top:1px solid var(--line);color:var(--ink-faint);font-size:.85rem}
-  footer a{color:var(--accent-strong)}
-  .pill{display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.06em;padding:2px 9px;border-radius:999px;vertical-align:middle}
-  .pill.core{background:#e8f0fe;color:var(--blue)}
-  .pill.io{background:#e8f6ec;color:#1d7a3f}
+  figcaption{font-size:.82rem;color:var(--text-secondary);margin-top:10px;text-align:left}
+  /* ======================= pills ======================= */
+  .pill{display:inline-block;font-size:.66rem;font-weight:700;letter-spacing:.06em;padding:2px 9px;border-radius:999px;vertical-align:middle}
+  .pill.core{background:var(--blue-soft);color:var(--blue)}
+  .pill.io{background:var(--green-soft);color:var(--green)}
   .pill.exp{background:var(--accent-soft);color:var(--accent-strong)}
-  .pill.util{background:#f1eafd;color:#6d3fc0}
+  .pill.util{background:var(--purple-soft);color:var(--purple)}
+  /* ======================= footer & misc ======================= */
+  footer{margin-top:88px;padding-top:22px;border-top:1px solid var(--border);color:var(--text-faint);font-size:.85rem}
+  footer p{margin:6px 0;color:var(--text-faint)}
+  footer a{color:var(--accent)}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;vertical-align:baseline}
+  .backtop{
+    position:fixed;right:24px;bottom:24px;z-index:50;
+    width:42px;height:42px;border-radius:50%;cursor:pointer;
+    border:1px solid var(--border);background:var(--surface);color:var(--text-secondary);
+    box-shadow:var(--shadow-lift);
+    opacity:0;pointer-events:none;transform:translateY(8px);
+    transition:opacity .18s ease,transform .18s ease,color .12s ease,border-color .12s ease;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .backtop.show{opacity:1;pointer-events:auto;transform:none}
+  .backtop:hover{color:var(--accent);border-color:var(--accent)}
+  .backtop svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  /* ======================= responsive ======================= */
+  @media (max-width:960px){
+    .topbar{display:flex}
+    nav.toc{
+      position:fixed;top:0;left:0;bottom:0;z-index:80;
+      width:min(300px,84vw);flex:none;height:100vh;
+      transform:translateX(-105%);
+      transition:transform .22s ease;
+      box-shadow:var(--shadow-lift);
+      border-right:1px solid var(--border);
+    }
+    nav.toc.open{transform:none}
+    .backdrop.show{display:block}
+    main{padding:0 20px 72px;max-width:none}
+    section{scroll-margin-top:calc(var(--topbar-h) + 16px)}
+    header.hero{margin-top:24px;padding:32px 26px}
+    header.hero h1{font-size:2rem}
+    h2 .anchor,h3 .anchor{position:static;opacity:1;margin-right:.3em}
+  }
+  @media print{
+    nav.toc,.topbar,.backtop,.backdrop,.copy,.cta{display:none!important}
+    main{padding:0;max-width:none}
+    body{background:#fff;color:#000}
+    .code{break-inside:avoid}
+    .card,.table-wrap,figure{break-inside:avoid}
+  }
 </style>
 </head>
 <body>
+
+<!-- ======================= TOP BAR (mobile) ======================= -->
+<header class="topbar">
+  <button class="icon-btn" id="menu-btn" aria-label="Open navigation" aria-expanded="false">
+    <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <a class="brand" href="#top">geo<span class="dot">ma</span></a>
+  <div class="spacer"></div>
+  <button class="icon-btn theme-toggle" aria-label="Toggle color theme">
+    <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.9" y1="4.9" x2="7" y2="7"/><line x1="17" y1="17" x2="19.1" y2="19.1"/><line x1="4.9" y1="19.1" x2="7" y2="17"/><line x1="17" y1="7" x2="19.1" y2="4.9"/></svg>
+  </button>
+</header>
+<div class="backdrop" id="backdrop"></div>
+
 <div class="wrap">
 
 <!-- ======================= NAV ======================= -->
-<nav class="toc" aria-label="Table of contents">
+<nav class="toc" id="toc" aria-label="Table of contents">
   <a class="brand" href="#top">geo<span class="dot">ma</span><small>documentation</small></a>
   <ul>
-    <div class="group">Start here</div>
-    <li><a href="#welcome">Welcome</a></li>
+    <li class="group">Start here</li>
+    <li><a href="#welcome">Overview</a></li>
     <li><a href="#how">How it works</a></li>
     <li><a href="#start">Getting started</a></li>
     <li><a href="#tutorial">Your first route</a></li>
-    <div class="group">Learn</div>
+    <li class="group">Learn</li>
     <li><a href="#concepts">Core concepts</a></li>
     <li><a href="#cleanup">Graph cleanup ops</a></li>
     <li><a href="#formats">Data formats</a></li>
-    <div class="group">Reference</div>
+    <li class="group">Reference</li>
     <li><a href="#ref-core">geoma::core</a></li>
     <li><a href="#ref-importer">geoma::importer</a></li>
     <li><a href="#ref-exporter">geoma::exporter</a></li>
     <li><a href="#ref-experimental">geoma::experimental</a></li>
     <li><a href="#ref-misc">geoma::misc</a></li>
-    <div class="group">Help</div>
+    <li class="group">Help</li>
     <li><a href="#faq">FAQ</a></li>
     <li><a href="#glossary">Glossary</a></li>
   </ul>
+  <div class="toc-footer">
+    <span>Color theme</span>
+    <button class="icon-btn theme-toggle" aria-label="Toggle color theme">
+      <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.9" y1="4.9" x2="7" y2="7"/><line x1="17" y1="17" x2="19.1" y2="19.1"/><line x1="4.9" y1="19.1" x2="7" y2="17"/><line x1="17" y1="7" x2="19.1" y2="4.9"/></svg>
+    </button>
+  </div>
 </nav>
 
 <!-- ======================= MAIN ======================= -->
 <main id="top">
 
-<header class="hero" id="hero">
+<header class="hero">
   <div class="hero-badges">
     <span class="badge orange">C++20</span>
     <span class="badge">OpenStreetMap</span>
     <span class="badge">GeoJSON</span>
-    <span class="badge">no framework, just a graph</span>
+    <span class="badge">Single-graph data model</span>
   </div>
-  <h1>Welcome to geo<span class="dot">ma</span> 👋</h1>
+  <h1>geo<span class="dot">ma</span> documentation</h1>
   <p class="tag">
-    A small, friendly C++ toolkit for loading real-world road networks, cleaning them up,
+    A compact C++20 toolkit for loading real-world road networks, repairing their graphs,
     and finding routes across them. If you can open a file and draw an SVG, you can use geoma.
   </p>
   <div class="cta">
-    <a class="btn primary" href="#start">Get started →</a>
+    <a class="btn primary" href="#start">Get started</a>
     <a class="btn ghost" href="#tutorial">See a full example</a>
   </div>
 </header>
 
-<!-- ================= WELCOME ================= -->
+<!-- ================= OVERVIEW ================= -->
 <section id="welcome">
-  <h2><span class="kicker">Start here</span>What is geoma?</h2>
+  <h2><a class="anchor" href="#welcome" aria-label="Link to this section">#</a><span class="kicker">Start here</span>What is geoma?</h2>
   <p class="lead">
     geoma treats a road network the way it really is: a <strong>graph</strong>. Every intersection is a
     <em>vertex</em> — a point in 2D space — and every road segment between two intersections is an
-    <em>edge</em>. A collection of these vertices is called a <strong>world</strong>, and it's the one
+    <em>edge</em>. A collection of these vertices is called a <strong>world</strong>, and it is the one
     datatype everything in the library works with.
   </p>
   <p>
-    That single idea makes geoma very approachable: there are no scene graphs, no entity systems, no
-    mandatory build scripts to learn the internals of. You <strong>import</strong> data into a world,
-    optionally <strong>clean it up</strong>, ask the <strong>navigator</strong> for routes, and
-    <strong>export</strong> the result — as an SVG you can open in a browser, a compact binary blob, or a
-    plain-text edge list.
+    That single idea keeps geoma approachable: there are no scene graphs, no entity systems and no
+    framework to learn. You <strong>import</strong> data into a world, optionally <strong>clean it up</strong>,
+    ask the <strong>navigator</strong> for routes, and <strong>export</strong> the result — as an SVG you can
+    open in a browser, a compact binary blob, or a plain-text edge list.
   </p>
   <div class="grid">
     <div class="card">
-      <h4>🗺️ Real-world data in</h4>
-      <p>Reads OpenStreetMap <code>.osm</code> XML and GeoJSON files, including country-sized extracts — parsed on a worker thread pool.</p>
+      <h4>Real-world data in</h4>
+      <p>Reads OpenStreetMap <code>.osm</code> XML and GeoJSON files — including country-sized extracts,
+      parsed on a worker thread pool — plus geoma's own binary format for near-instant reloads.</p>
     </div>
     <div class="card">
-      <h4>🧹 Graph repair built in</h4>
-      <p>Merges duplicate points, snaps dead-ends onto edges and splits crossings — the messy bits of real map data.</p>
+      <h4>Graph repair built in</h4>
+      <p>Merges duplicate points, snaps dead-ends onto edges and splits crossings — the messy parts of
+      real map data, handled in place.</p>
     </div>
     <div class="card">
-      <h4>🧭 Greedy routing</h4>
-      <p>A best-first search that walks the graph toward your target, with flexible budgets: N solutions, a time limit, or both.</p>
+      <h4>Budgeted routing</h4>
+      <p>A greedy best-first search with flexible budgets — N solutions, a time limit, or both — and an
+      optional frontier cap for very large worlds.</p>
     </div>
     <div class="card">
-      <h4>🎨 Visual output</h4>
-      <p>One call renders the whole world to SVG with hoverable roads — perfect for debugging your data visually.</p>
+      <h4>Visual output</h4>
+      <p>One call renders the whole world to SVG with hoverable roads — well suited to inspecting your
+      data visually while debugging.</p>
     </div>
   </div>
-  <div class="callout"><span class="icon">💡</span><span>
+  <div class="callout note"><span class="label">Audience</span><p>
     <strong>Who is this for?</strong> Students and developers who want to experiment with routing, map data
-    and graph algorithms without dragging in a heavyweight GIS stack. If you know basic C++, you already
-    know enough.
-  </span></div>
+    and graph algorithms without adopting a heavyweight GIS stack. Basic C++ knowledge is sufficient.
+  </p></div>
 </section>
 
 <!-- ================= HOW ================= -->
 <section id="how">
-  <h2><span class="kicker">The big picture</span>How it works</h2>
+  <h2><a class="anchor" href="#how" aria-label="Link to this section">#</a><span class="kicker">The big picture</span>How it works</h2>
   <p>Everything you do with geoma follows the same four-stage pipeline:</p>
   <div class="pipeline">
-    <div class="stage"><div class="num">1</div><h5>Import</h5><p>OSM or GeoJSON → a world of vertices</p></div>
-    <div class="arrow">→</div>
+    <div class="stage"><div class="num">1</div><h5>Import</h5><p>OSM, GeoJSON or native binary &rarr; a world of vertices</p></div>
+    <div class="arrow">&rarr;</div>
     <div class="stage"><div class="num">2</div><h5>Clean up</h5><p>dissolve, close, subdivide, decouple</p></div>
-    <div class="arrow">→</div>
+    <div class="arrow">&rarr;</div>
     <div class="stage"><div class="num">3</div><h5>Navigate</h5><p>find routes from A to B</p></div>
-    <div class="arrow">→</div>
+    <div class="arrow">&rarr;</div>
     <div class="stage"><div class="num">4</div><h5>Export</h5><p>SVG, binary, or edge list</p></div>
   </div>
   <p>
@@ -255,95 +459,109 @@
     data; you can skip cleanup entirely; you can even build a world completely by hand with
     <code>vertex::make</code> and <code>vertex::join</code> and never touch a file at all.
   </p>
-  <div class="callout blue"><span class="icon">📌</span><span>
+  <div class="callout note"><span class="label">Key type</span><p>
     <strong>The one type to remember:</strong> <code>std::list&lt;std::shared_ptr&lt;geoma::core::vertex&gt;&gt;</code> —
-    that's a "world". Every function in the library takes or returns one.
-  </span></div>
+    that is a "world". Nearly every function in the library takes or returns one.
+  </p></div>
 </section>
 
 <!-- ================= GETTING STARTED ================= -->
 <section id="start">
-  <h2><span class="kicker">Getting started</span>Build &amp; run</h2>
+  <h2><a class="anchor" href="#start" aria-label="Link to this section">#</a><span class="kicker">Getting started</span>Build &amp; run</h2>
 
-  <h3>What you need</h3>
+  <h3>Requirements</h3>
   <ul>
     <li>A <strong>C++20</strong> compiler (MSVC, GCC or Clang — the project builds on Windows and Linux)</li>
-    <li><a href="https://xmake.io">xmake</a> <em>or</em> CMake ≥ 3.15</li>
+    <li><a href="https://xmake.io">xmake</a> <em>or</em> CMake &ge; 3.15</li>
     <li>Four small dependencies, fetched automatically by xmake: <code>rapidxml</code>, <code>jsoncpp</code>, <code>lunasvg</code>, <code>fmt</code></li>
   </ul>
 
-  <h3>Build with xmake <span style="font-weight:400;color:var(--ink-faint)">(recommended)</span></h3>
-  <div class="code" data-lang="shell"><header>terminal<button class="copy">copy</button></header><pre>xmake                <span class="c"># configure + build in one step</span>
+  <h3>Build with xmake (recommended)</h3>
+  <div class="code" data-lang="shell"><header><span>terminal</span><button class="copy">copy</button></header><pre>xmake                <span class="c"># configure + build in one step</span>
 xmake run geoma       <span class="c"># run the demo program</span></pre></div>
 
   <h3>Build with CMake</h3>
-  <div class="code" data-lang="shell"><header>terminal<button class="copy">copy</button></header><pre>cmake -B build -DCMAKE_BUILD_TYPE=Release
+  <div class="code" data-lang="shell"><header><span>terminal</span><button class="copy">copy</button></header><pre>cmake -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ./build/geoma</pre></div>
-  <div class="callout"><span class="icon">ℹ️</span><span>
-    The <code>CMakeLists.txt</code> in the repo is <strong>autogenerated by xmake</strong> — don't edit it by hand;
-    change <code>xmake.lua</code> instead.
-  </span></div>
+  <div class="callout note"><span class="label">Note</span><p>
+    The <code>CMakeLists.txt</code> in the repository is <strong>autogenerated by xmake</strong>. Do not edit
+    it by hand; change <code>xmake.lua</code> instead.
+  </p></div>
 
   <h3>What the demo does</h3>
   <p>
-    Out of the box, <code>main.cpp</code> runs <code>port_test()</code>: it loads a GeoJSON extract, runs the
-    full cleanup pipeline with per-step statistics, routes between two coordinates and writes
-    <code>port.svg</code>. Open that SVG in a browser and you'll see your map — orange roads that light up
-    cyan when you hover them. The other routines (<code>pontagea_test</code>, <code>moz_test</code>) show
-    OSM importing and bulk binary conversion; comment/uncomment calls in <code>main()</code> to switch.
+    <code>main.cpp</code> contains several demo routines; edit <code>main()</code> to switch between them:
   </p>
+  <ul>
+    <li><code>port_path_check()</code> — <em>currently wired in</em>. Loads the native binary
+        <code>port.gbm</code>, then routes across it with the frontier capped via
+        <code>navigator::flags{.next_steps_limit = 3}</code> and writes <code>port.svg</code>.</li>
+    <li><code>port_test()</code> — the full GeoJSON pipeline: import, per-step cleanup statistics, routing
+        with a 10-route / 2-second budget, then an SVG render.</li>
+    <li><code>denoise_and_shrink_map()</code> — iterative cleanup passes over a GeoJSON extract, followed by
+        a binary round-trip: it exports <code>port.gbm</code>, re-imports it and verifies the result with
+        <code>experimental::equal</code>.</li>
+    <li><code>pontagea_test()</code> — OSM import, routing, SVG plus binary export.</li>
+    <li><code>moz_test()</code> — one-time bulk conversion of a country-sized OSM file to the binary format.</li>
+  </ul>
 </section>
 
 <!-- ================= TUTORIAL ================= -->
 <section id="tutorial">
-  <h2><span class="kicker">5-minute tutorial</span>Your first route</h2>
-  <p class="lead">Here is a complete, real program. Load a map, clean it, route across it, save a picture.</p>
+  <h2><a class="anchor" href="#tutorial" aria-label="Link to this section">#</a><span class="kicker">Tutorial</span>Your first route</h2>
+  <p class="lead">A complete, real program: load a map, clean it, route across it, save a picture.</p>
 
-  <div class="code" data-lang="cpp"><header>my_first_route.cpp<button class="copy">copy</button></header><pre><span class="k">#include</span> <span class="s">"geoma.hpp"</span>   <span class="c">// one header for everything</span>
+  <div class="code" data-lang="cpp"><header><span>my_first_route.cpp</span><button class="copy">copy</button></header><pre><span class="k">#include</span> <span class="s">"geoma.hpp"</span>                    <span class="c">// core, osm importer, svg/links exporters, experimental</span>
+<span class="k">#include</span> <span class="s">"modules/importer/geojson.hpp"</span>   <span class="c">// not pulled in by the umbrella header</span>
+<span class="k">#include</span> <span class="s">&lt;fmt/core.h&gt;</span>
 
 <span class="k">int</span> <span class="f">main</span>()
 {
-    <span class="c">// 1️⃣  Load a road network into a "world"</span>
+    <span class="c">// 1. Load a road network into a "world"</span>
     <span class="k">auto</span> world = geoma::importer::geojson::<span class="f">import</span>(<span class="s">"city.geojson"</span>);
 
-    <span class="c">// 2️⃣  Tidy the graph so routes look sane</span>
+    <span class="c">// 2. Clean the graph so routes look sane</span>
     geoma::experimental::<span class="f">decouple</span>(world);                        <span class="c">// drop duplicated links</span>
     <span class="k">auto</span> merged = geoma::experimental::<span class="f">dissolve</span>(world, 5e-5);   <span class="c">// merge near-duplicate points</span>
     <span class="k">auto</span> closed = geoma::experimental::<span class="f">close</span>(world, 1e-4);      <span class="c">// snap dead-ends onto edges</span>
 
-    <span class="c">// 3️⃣  Set up a journey: from A to B, max 10 routes, 2-second budget</span>
-    <span class="k">auto</span> nav     = geoma::core::navigator::<span class="f">make</span>(
-                       geoma::core::vertex::<span class="f">make</span>(-19.8209, 34.8341),
-                       geoma::core::vertex::<span class="f">make</span>(-19.8161, 34.8387));
-    <span class="k">auto</span> budget  = geoma::core::incremental_timed_counter::<span class="f">make</span>(10, std::chrono::<span class="f">seconds</span>(2));
+    <span class="c">// 3. Define the journey: A to B, at most 10 routes within 2 seconds</span>
+    <span class="k">auto</span> nav    = geoma::core::navigator::<span class="f">make</span>(
+                      geoma::core::vertex::<span class="f">make</span>(-19.8209, 34.8341),
+                      geoma::core::vertex::<span class="f">make</span>(-19.8161, 34.8387));
+    <span class="k">auto</span> budget = geoma::core::incremental_timed_counter::<span class="f">make</span>(10, std::chrono::<span class="f">seconds</span>(2));
 
     geoma::core::navigator::solutions solutions;
     geoma::core::navigator::<span class="f">navigate</span>(nav, world, budget, solutions);
 
-    <span class="c">// 4️⃣  Show the result</span>
+    <span class="c">// 4. Inspect the result</span>
     fmt::<span class="f">println</span>(<span class="s">"found {} route(s)"</span>, solutions.size());
     geoma::exporter::svg::<span class="f">export_</span>(world, <span class="s">"city.svg"</span>, 1e5);
     <span class="k">return</span> 0;
 }</pre></div>
 
-  <p>
-    That's genuinely the whole API shape. A few notes on what just happened:
-  </p>
+  <p>A few notes on what just happened:</p>
   <ul>
+    <li>The umbrella header <code>geoma.hpp</code> includes <code>geoma::core</code>, the OSM importer, the SVG
+        and links exporters, and <code>geoma::experimental</code>. The GeoJSON and native-binary modules are
+        included separately, as shown above.</li>
     <li><code>dissolve</code> and <code>close</code> take <strong>thresholds in coordinate units</strong>. For
-        latitude/longitude data, <code>5e-5</code> degrees is roughly 5 meters — you'll tune these per dataset.</li>
-    <li>The <strong>counter</strong> is the search's stop button. Here it allows 10 routes <em>or</em> 2 seconds,
-        whichever comes first — so the program always finishes quickly even on huge maps.</li>
-    <li><code>export_</code>'s last argument is the <strong>zoom</strong>: pixels per coordinate unit. Higher zoom,
-        bigger picture. <code>1e5</code> is a good start for city-scale degree coordinates.</li>
-    <li>Each found <strong>solution</strong> is a <code>std::list</code> of vertices from target back to origin —
-        iterate it to get the route.</li>
+        latitude/longitude data, <code>5e-5</code> degrees is roughly 5 meters — tune these per dataset.</li>
+    <li>The <strong>counter</strong> is the search's stop condition. Here it allows 10 routes <em>or</em>
+        2 seconds, whichever comes first, so the program finishes quickly even on large maps.</li>
+    <li><code>navigate</code> accepts an optional fifth argument, <code>navigator::flags</code>. Setting
+        <code>.next_steps_limit = N</code> keeps only the N most promising candidates per search level — a
+        significant speed-up on dense graphs, at the cost of exploring fewer alternatives.</li>
+    <li><code>export_</code>'s last argument is the <strong>zoom</strong>: pixels per coordinate unit.
+        <code>1e5</code> is a good starting point for city-scale degree coordinates.</li>
+    <li>Each <strong>solution</strong> is a <code>std::list</code> of vertices ordered from target back to
+        origin — iterate it to walk the route.</li>
   </ul>
-  <div class="callout"><span class="icon">🧪</span><span>
-    Want to start even smaller? Skip the file entirely and build a world by hand:
-  </span></div>
-  <div class="code" data-lang="cpp"><header>tiny_world.cpp<button class="copy">copy</button></header><pre>std::list&lt;std::shared_ptr&lt;geoma::core::vertex&gt;&gt; world;
+  <div class="callout"><span class="label">Minimal start</span><p>
+    To start even smaller, skip the file entirely and build a world by hand:
+  </p></div>
+  <div class="code" data-lang="cpp"><header><span>tiny_world.cpp</span><button class="copy">copy</button></header><pre>std::list&lt;std::shared_ptr&lt;geoma::core::vertex&gt;&gt; world;
 
 <span class="k">auto</span> a = geoma::core::vertex::<span class="f">make</span>(0, 0);
 <span class="k">auto</span> b = geoma::core::vertex::<span class="f">make</span>(1, 0);
@@ -352,130 +570,134 @@ geoma::core::vertex::<span class="f">join</span>(a, b);  geoma::core::vertex::<s
 geoma::core::vertex::<span class="f">join</span>(b, c);  geoma::core::vertex::<span class="f">join</span>(c, b);
 
 world = { a, b, c };
-geoma::exporter::svg::<span class="f">export_</span>(world, <span class="s">"tiny.svg"</span>, 100);  <span class="c">// it renders! 🎉</span></pre></div>
+geoma::exporter::svg::<span class="f">export_</span>(world, <span class="s">"tiny.svg"</span>, 100);  <span class="c">// renders a triangle-less L</span></pre></div>
 </section>
 
 <!-- ================= CONCEPTS ================= -->
 <section id="concepts">
-  <h2><span class="kicker">Learn</span>Core concepts</h2>
+  <h2><a class="anchor" href="#concepts" aria-label="Link to this section">#</a><span class="kicker">Learn</span>Core concepts</h2>
 
-  <h3>🌍 Worlds and vertices</h3>
+  <h3>Worlds and vertices</h3>
   <p>
     A <strong>vertex</strong> (<code>geoma::core::vertex</code>) is a 2D point plus a list of
-    <strong>neighbors</strong>. Edges live inside the vertices themselves: <code>a</code> has
-    <code>b</code> in its neighbors list means "there is an edge a→b". Two important details:
+    <strong>neighbors</strong>. Edges live inside the vertices themselves: <code>a</code> having
+    <code>b</code> in its neighbor list means "there is an edge a&rarr;b". Two important details:
   </p>
   <ul>
     <li><code>vertex::join(a, b)</code> creates a <strong>one-way</strong> link. The importers always call it
-        twice to make two-way roads — you should too, unless you model one-way streets.</li>
+        twice to make two-way roads — do the same unless you are modelling one-way streets.</li>
     <li><code>vertex::equals</code> compares <strong>coordinates exactly</strong>, not memory addresses. Two
-        different vertices at the same coordinates are "equal" but still distinct objects.</li>
+        distinct vertices at the same coordinates compare equal but remain separate objects.</li>
   </ul>
 
-  <h3>🧭 The navigator</h3>
+  <h3>The navigator</h3>
   <p>
     <code>navigator::navigate</code> is a greedy best-first search. It snaps your origin and target to the
-    <em>closest vertices in the world</em>, then expands the frontier level by level, always sorting candidate
-    steps by "distance remaining to the target" so the most promising branches are tried first. When a step
-    lands on the target's vertex, the chain of steps is flattened into a route and recorded.
+    <em>closest vertices in the world</em>, then expands the frontier level by level, sorting candidate
+    steps by remaining distance to the target so the most promising branches are explored first. When a
+    step lands on the target's vertex, the chain of steps is flattened into a route and recorded.
   </p>
   <p>
-    Because it's guided and budgeted rather than exhaustive, it answers fast on big worlds — think "good
-    route now" rather than "provably optimal route eventually".
+    Because it is guided and budgeted rather than exhaustive, it answers quickly on large worlds — "a good
+    route now" rather than "a provably optimal route eventually". The optional
+    <code>navigator::flags{.next_steps_limit = N}</code> argument truncates each level's sorted frontier to
+    its best N entries, which bounds the per-level work on dense graphs.
   </p>
 
-  <h3>⏱️ Counters: the search's stop button</h3>
-  <p>Counters decide when <code>navigate</code> gives up. All implement the same tiny interface:</p>
-  <table>
-    <tr><th>Counter</th><th>Stops when…</th><th>Make it with</th></tr>
+  <h3>Counters: the search's stop condition</h3>
+  <p>Counters decide when <code>navigate</code> stops. All implement the same small interface:</p>
+  <div class="table-wrap"><table>
+    <tr><th>Counter</th><th>Stops when&hellip;</th><th>Make it with</th></tr>
     <tr><td><code>incremental_counter</code></td><td>N solutions have been found</td><td><code>make(limit)</code></td></tr>
     <tr><td><code>timed_counter</code></td><td>a wall-clock deadline passes</td><td><code>make(duration)</code></td></tr>
     <tr><td><code>incremental_timed_counter</code></td><td>either of the above — <em>the safe default</em></td><td><code>make(limit, duration)</code></td></tr>
-  </table>
-  <p>Need different behavior? Derive your own from <code>geoma::core::counter</code> and implement
-  <code>done()</code> / <code>count()</code> — the navigator will happily use it.</p>
+  </table></div>
+  <p>Need different behavior? Derive from <code>geoma::core::counter</code> and implement
+  <code>done()</code> / <code>count()</code> — the navigator will use it as-is.</p>
 
-  <h3>🪜 Steps</h3>
+  <h3>Steps</h3>
   <p>
-    <code>step</code> is the navigator's internal bookkeeping: one step = "I'm standing on this vertex, having
-    come from that predecessor". Steps link backwards, so a finished route is recovered by walking the
-    <code>predecessor</code> chain — <code>step::walkthrough</code> does exactly that. You rarely touch steps
-    yourself, but they're exposed for experimentation.
+    <code>step</code> is the navigator's internal bookkeeping: one step means "standing on this vertex,
+    having arrived from that predecessor". Steps link backwards, so a finished route is recovered by
+    walking the <code>predecessor</code> chain — <code>step::walkthrough</code> does exactly that. You
+    rarely touch steps yourself, but they are exposed for experimentation.
   </p>
 </section>
 
 <!-- ================= CLEANUP ================= -->
 <section id="cleanup">
-  <h2><span class="kicker">Learn</span>Graph cleanup ops</h2>
+  <h2><a class="anchor" href="#cleanup" aria-label="Link to this section">#</a><span class="kicker">Learn</span>Graph cleanup ops</h2>
   <p>
     Real map data is messy. The <code>geoma::experimental</code> namespace holds four in-place repair
-    operations, each returning the number of elements it touched. They're the reason demo routes look clean.
+    operations, each returning the number of elements it touched. They are the reason the demo routes
+    look clean.
   </p>
   <div class="fig">
     <figure>
       <svg viewBox="0 0 220 120" width="220" height="120" role="img" aria-label="dissolve illustration">
-        <line x1="20" y1="30" x2="55" y2="60" stroke="#ff7400" stroke-width="3" stroke-linecap="round"/>
-        <line x1="55" y1="60" x2="40" y2="100" stroke="#ff7400" stroke-width="3" stroke-linecap="round"/>
-        <circle cx="130" cy="55" r="5" fill="#1a56db"/>
-        <circle cx="160" cy="65" r="5" fill="#1a56db"/>
-        <path d="M 133 57 Q 145 50 157 63" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3"/>
-        <circle cx="145" cy="60" r="6" fill="#ff7400"/>
-        <text x="110" y="112" font-size="10" fill="#475569" text-anchor="middle">two points closer than threshold → one</text>
+        <line x1="20" y1="30" x2="55" y2="60" style="stroke:var(--accent)" stroke-width="3" stroke-linecap="round"/>
+        <line x1="55" y1="60" x2="40" y2="100" style="stroke:var(--accent)" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="130" cy="55" r="5" style="fill:var(--blue)"/>
+        <circle cx="160" cy="65" r="5" style="fill:var(--blue)"/>
+        <path d="M 133 57 Q 145 50 157 63" fill="none" style="stroke:var(--text-faint)" stroke-width="1.5" stroke-dasharray="3"/>
+        <circle cx="145" cy="60" r="6" style="fill:var(--accent)"/>
+        <text x="110" y="112" font-size="10" style="fill:var(--text-secondary)" text-anchor="middle">two points closer than threshold &rarr; one</text>
       </svg>
       <figcaption><strong>dissolve</strong> — near-duplicate points merge; one absorbs the other's edges</figcaption>
     </figure>
     <figure>
       <svg viewBox="0 0 220 120" width="220" height="120" role="img" aria-label="subdivide illustration">
-        <line x1="30" y1="30" x2="190" y2="90" stroke="#ff7400" stroke-width="3" stroke-linecap="round"/>
-        <line x1="30" y1="90" x2="190" y2="30" stroke="#ff7400" stroke-width="3" stroke-linecap="round"/>
-        <circle cx="110" cy="60" r="6" fill="#1a56db"/>
-        <text x="110" y="112" font-size="10" fill="#475569" text-anchor="middle">crossing edges → junction at X</text>
+        <line x1="30" y1="30" x2="190" y2="90" style="stroke:var(--accent)" stroke-width="3" stroke-linecap="round"/>
+        <line x1="30" y1="90" x2="190" y2="30" style="stroke:var(--accent)" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="110" cy="60" r="6" style="fill:var(--blue)"/>
+        <text x="110" y="112" font-size="10" style="fill:var(--text-secondary)" text-anchor="middle">crossing edges &rarr; junction at X</text>
       </svg>
       <figcaption><strong>subdivide</strong> — crossing edges are split at their intersection</figcaption>
     </figure>
     <figure>
       <svg viewBox="0 0 220 120" width="220" height="120" role="img" aria-label="close illustration">
-        <line x1="30" y1="80" x2="150" y2="40" stroke="#ff7400" stroke-width="3" stroke-linecap="round"/>
-        <line x1="150" y1="40" x2="200" y2="80" stroke="#1a56db" stroke-width="2" stroke-dasharray="4" opacity=".5"/>
-        <circle cx="30" cy="80" r="4" fill="#1a56db"/>
-        <circle cx="178" cy="95" r="4" fill="#94a3b8"/>
-        <line x1="178" y1="95" x2="160" y2="46" stroke="#94a3b8" stroke-width="1" stroke-dasharray="2"/>
-        <circle cx="160" cy="46" r="5" fill="#ff7400"/>
-        <text x="110" y="115" font-size="10" fill="#475569" text-anchor="middle">dangling dot → snapped onto the edge</text>
+        <line x1="30" y1="80" x2="150" y2="40" style="stroke:var(--accent)" stroke-width="3" stroke-linecap="round"/>
+        <line x1="150" y1="40" x2="200" y2="80" style="stroke:var(--blue)" stroke-width="2" stroke-dasharray="4" opacity=".5"/>
+        <circle cx="30" cy="80" r="4" style="fill:var(--blue)"/>
+        <circle cx="178" cy="95" r="4" style="fill:var(--text-faint)"/>
+        <line x1="178" y1="95" x2="160" y2="46" style="stroke:var(--text-faint)" stroke-width="1" stroke-dasharray="2"/>
+        <circle cx="160" cy="46" r="5" style="fill:var(--accent)"/>
+        <text x="110" y="115" font-size="10" style="fill:var(--text-secondary)" text-anchor="middle">dangling dot &rarr; snapped onto the edge</text>
       </svg>
       <figcaption><strong>close</strong> — dead-ends within threshold of an edge get attached to it</figcaption>
     </figure>
     <figure>
       <svg viewBox="0 0 220 120" width="220" height="120" role="img" aria-label="decouple illustration">
-        <circle cx="40" cy="60" r="5" fill="#1a56db"/><circle cx="180" cy="60" r="5" fill="#1a56db"/>
-        <line x1="40" y1="52" x2="180" y2="52" stroke="#ff7400" stroke-width="2"/>
-        <line x1="40" y1="60" x2="180" y2="60" stroke="#ff7400" stroke-width="2"/>
-        <line x1="40" y1="68" x2="180" y2="68" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3"/>
-        <text x="110" y="100" font-size="10" fill="#475569" text-anchor="middle">duplicate links → single clean edge</text>
+        <circle cx="40" cy="60" r="5" style="fill:var(--blue)"/><circle cx="180" cy="60" r="5" style="fill:var(--blue)"/>
+        <line x1="40" y1="52" x2="180" y2="52" style="stroke:var(--accent)" stroke-width="2"/>
+        <line x1="40" y1="60" x2="180" y2="60" style="stroke:var(--accent)" stroke-width="2"/>
+        <line x1="40" y1="68" x2="180" y2="68" style="stroke:var(--text-faint)" stroke-width="1" stroke-dasharray="3"/>
+        <text x="110" y="100" font-size="10" style="fill:var(--text-secondary)" text-anchor="middle">duplicate links &rarr; single clean edge</text>
       </svg>
       <figcaption><strong>decouple</strong> — repeated links collapse into one</figcaption>
     </figure>
   </div>
-  <div class="callout"><span class="icon">🔧</span><span>
-    <strong>Recommended order</strong> (mirrors the demo): <code>decouple</code> → <code>dissolve</code> →
-    <code>close</code> → <code>subdivide</code> → <code>decouple</code> again. Counting vertices before and
-    after with <code>count()</code> tells you exactly how much each step repaired.
-  </span></div>
+  <div class="callout"><span class="label">Recommended order</span><p>
+    Mirroring the demo: <code>decouple</code> &rarr; <code>dissolve</code> &rarr; <code>close</code> &rarr;
+    <code>subdivide</code> &rarr; <code>decouple</code> again. Measuring the world before and after with
+    <code>count()</code> tells you exactly how much each step repaired.
+  </p></div>
 </section>
 
 <!-- ================= FORMATS ================= -->
 <section id="formats">
-  <h2><span class="kicker">Learn</span>Data formats</h2>
+  <h2><a class="anchor" href="#formats" aria-label="Link to this section">#</a><span class="kicker">Learn</span>Data formats</h2>
 
-  <h3>📥 Importing</h3>
-  <table>
+  <h3>Importing</h3>
+  <div class="table-wrap"><table>
     <tr><th>Format</th><th>Function</th><th>What it reads</th></tr>
     <tr>
       <td>OpenStreetMap XML</td>
       <td><code>importer::osm::import</code></td>
       <td><code>&lt;node&gt;</code> elements become vertices; <code>&lt;way&gt;</code> elements tagged
           <code>highway</code> link their consecutive <code>&lt;nd&gt;</code> nodes. Nodes with
-          <code>action="delete"</code> are skipped; isolated vertices are dropped. Parsed on a thread pool.</td>
+          <code>action="delete"</code> are skipped; vertices never referenced by a highway are dropped.
+          Parsed on a thread pool.</td>
     </tr>
     <tr>
       <td>GeoJSON</td>
@@ -484,250 +706,327 @@ geoma::exporter::svg::<span class="f">export_</span>(world, <span class="s">"tin
           are deduplicated by coordinate. Coordinates are read as <code>[lon, lat]</code> and stored as
           <code>x = lat, y = lon</code>.</td>
     </tr>
-  </table>
+    <tr>
+      <td>Native binary</td>
+      <td><code>importer::native::import</code></td>
+      <td>geoma's own compact dump (layout below). Validates the checkpoint and the byte-size sentinel while
+          loading; returns an empty list on any inconsistency. The fastest way to load a world.</td>
+    </tr>
+  </table></div>
   <p>
-    Both importers load the whole file into memory first (a warning is printed above ~1 GB), so very large
-    extracts need RAM to match. The OSM importer is your friend for bulk conversion: see <code>moz_test</code>
-    in <code>main.cpp</code> for converting a country-sized file to the binary format once, then loading
-    instantly afterwards.
+    The XML and JSON importers load the whole file into memory first (a warning is printed above ~1&nbsp;GB),
+    so very large extracts need RAM to match. The recommended workflow for bulk data is to convert once with
+    the OSM importer and reload through <code>native::import</code> afterwards — see <code>moz_test</code> and
+    <code>port_path_check</code> in <code>main.cpp</code>.
   </p>
 
-  <h3>📤 Exporting</h3>
-  <table>
+  <h3>Exporting</h3>
+  <div class="table-wrap"><table>
     <tr><th>Format</th><th>Function</th><th>Output</th></tr>
     <tr><td>SVG</td><td><code>exporter::svg::export_</code></td><td>Browser-ready drawing: orange roads (cyan on hover), blue dots labeled with coordinates and degree.</td></tr>
     <tr><td>Native binary</td><td><code>exporter::native::export_</code></td><td>Compact graph dump — layout below. Fast to write, fast to reload.</td></tr>
-    <tr><td>Edge list</td><td><code>exporter::links::export_</code></td><td>One <code>a -&gt; b</code> text line per directed edge. Great for debugging and diffing.</td></tr>
-  </table>
+    <tr><td>Edge list</td><td><code>exporter::links::export_</code></td><td>One <code>a -&gt; b</code> text line per directed edge. Useful for debugging and diffing.</td></tr>
+  </table></div>
 
-  <h3>💾 Native binary layout</h3>
-  <table>
-    <tr><th>Offset</th><th>Type</th><th>Field</th></tr>
-    <tr><td><code>0</code></td><td><code>uint64</code></td><td>Vertex count <em>N</em> (header)</td></tr>
-    <tr><td><code>8</code></td><td><em>N</em> × <code>double, double</code></td><td><code>x</code>, <code>y</code> of each vertex, in list order</td></tr>
-    <tr><td>…</td><td>pairs of <code>uint64</code></td><td>One pair per <em>directed</em> edge: source index, destination index</td></tr>
-    <tr><td>end</td><td><code>uint64</code></td><td><em>N</em> again (footer sentinel)</td></tr>
-  </table>
-  <div class="callout"><span class="icon">⚠️</span><span>
-    The exporter aborts with a <strong>"ghost vertex"</strong> error if a vertex's neighbor is not itself in
-    the world list — every neighbor must be exported for indices to stay valid. (Also note: values are written
-    with the host's endianness and <code>unsigned long long</code> width.)
-  </span></div>
+  <h3>Native binary layout</h3>
+  <div class="table-wrap"><table>
+    <tr><th>Order</th><th>Type</th><th>Field</th></tr>
+    <tr><td>1</td><td><code>uint64</code></td><td>Vertex count <em>N</em> (header)</td></tr>
+    <tr><td>2</td><td><em>N</em> &times; <code>double, double</code></td><td><code>x</code>, <code>y</code> of each vertex, in list order</td></tr>
+    <tr><td>3</td><td><code>uint64</code></td><td><em>N</em> again (checkpoint after the vertex block)</td></tr>
+    <tr><td>4</td><td>pairs of <code>uint64</code></td><td>One pair per <em>directed</em> edge: source index, destination index</td></tr>
+    <tr><td>5</td><td><code>uint64</code></td><td>Total file size in bytes (footer integrity sentinel)</td></tr>
+  </table></div>
+  <div class="callout warn"><span class="label">Warning</span><p>
+    The exporter fails with a <strong>"ghost vertex"</strong> error if a vertex's neighbor is not itself in
+    the world list — every neighbor must be exported for indices to stay valid. Values are written with the
+    host's endianness and <code>unsigned long long</code> width, so files are not portable across differing
+    platforms.
+  </p></div>
 </section>
 
 <!-- ================= REFERENCE: CORE ================= -->
 <section id="ref-core">
-  <h2><span class="kicker">Reference</span><code>geoma::core</code> <span class="pill core">core</span></h2>
+  <h2><a class="anchor" href="#ref-core" aria-label="Link to this section">#</a><span class="kicker">Reference</span><code>geoma::core</code> <span class="pill core">core</span></h2>
 
   <h3>struct vertex</h3>
-  <table>
+  <div class="table-wrap"><table>
     <tr><th>Member</th><th>Signature</th><th>Description</th></tr>
-    <tr><td><code>x</code>, <code>y</code></td><td class="sig">double</td><td>Coordinates (latitude/longitude for geographic data).</td></tr>
+    <tr><td><code>x</code>, <code>y</code></td><td class="sig">double</td><td>Coordinates (x = longitude, y = latitude for geographic data; the GeoJSON importer stores lat in x, lon in y — check your source format).</td></tr>
     <tr><td><code>neighbors</code></td><td class="sig">std::list&lt;std::shared_ptr&lt;vertex&gt;&gt;</td><td>Outgoing edges of this vertex.</td></tr>
-    <tr><td><code>make</code></td><td class="sig">make(x, y) → shared_ptr&lt;vertex&gt;</td><td>Allocates a vertex.</td></tr>
-    <tr><td><code>distance</code></td><td class="sig">distance(va, vb) → double</td><td>Euclidean distance between two vertices.</td></tr>
-    <tr><td><code>join</code></td><td class="sig">join(va, vb)</td><td>Adds <b>vb</b> to <b>va</b>'s neighbors (one-way!). No duplicate check.</td></tr>
-    <tr><td><code>joined</code></td><td class="sig">joined(va, vb) → bool</td><td>True if vb is in va's neighbor list.</td></tr>
-    <tr><td><code>equals</code></td><td class="sig">equals(va, vb) → bool</td><td>Exact coordinate comparison.</td></tr>
-    <tr><td><code>lower</code> / <code>greater</code></td><td class="sig">(va, vb) → bool</td><td>Loose ordering on x or y — not a strict weak order; ad-hoc use only.</td></tr>
-    <tr><td><code>closest</code></td><td class="sig">closest(v, world) → shared_ptr&lt;vertex&gt;</td><td>Nearest vertex of <i>world</i> to v (linear scan); nullptr if world is empty.</td></tr>
-    <tr><td><code>operator string</code></td><td class="sig">"{ x = …, y = … }"</td><td>Human-readable rendering with 14 decimals.</td></tr>
-  </table>
+    <tr><td><code>make</code></td><td class="sig">make(x, y) &rarr; shared_ptr&lt;vertex&gt;</td><td>Allocates a vertex.</td></tr>
+    <tr><td><code>distance</code></td><td class="sig">distance(va, vb) &rarr; double</td><td>Euclidean distance between two vertices.</td></tr>
+    <tr><td><code>join</code></td><td class="sig">join(va, vb)</td><td>Adds <b>vb</b> to <b>va</b>'s neighbors (one-way). No duplicate check.</td></tr>
+    <tr><td><code>joined</code></td><td class="sig">joined(va, vb) &rarr; bool</td><td>True if vb is in va's neighbor list.</td></tr>
+    <tr><td><code>equals</code></td><td class="sig">equals(va, vb) &rarr; bool</td><td>Exact coordinate comparison.</td></tr>
+    <tr><td><code>lower</code> / <code>greater</code></td><td class="sig">(va, vb) &rarr; bool</td><td>Loose ordering on x or y — not a strict weak order; ad-hoc use only.</td></tr>
+    <tr><td><code>closest</code></td><td class="sig">closest(v, world) &rarr; shared_ptr&lt;vertex&gt;</td><td>Nearest vertex of <i>world</i> to v (linear scan); nullptr if world is empty.</td></tr>
+    <tr><td><code>operator string</code></td><td class="sig">"{ x = &hellip;, y = &hellip; }"</td><td>Human-readable rendering with 14 decimals.</td></tr>
+    <tr><td><code>to_simple_string</code></td><td class="sig">() &rarr; std::string</td><td>Compact coordinate rendering used in debug output.</td></tr>
+  </table></div>
 
   <h3>struct navigator</h3>
-  <table>
+  <div class="table-wrap"><table>
     <tr><th>Member</th><th>Signature</th><th>Description</th></tr>
     <tr><td><code>origin</code>, <code>target</code></td><td class="sig">shared_ptr&lt;vertex&gt;</td><td>Journey endpoints.</td></tr>
-    <tr><td><code>solutions</code></td><td class="sig">typedef list&lt;list&lt;shared_ptr&lt;vertex&gt;&gt;&gt;</td><td>Collection of routes (each target→origin).</td></tr>
-    <tr><td><code>make</code></td><td class="sig">make(origin, target) → shared_ptr&lt;navigator&gt;</td><td>Builds a navigator.</td></tr>
-    <tr><td><code>navigate</code></td><td class="sig">navigate(nav, world, counter, solutions)</td><td>Greedy best-first search; appends every found route to <i>solutions</i>.</td></tr>
-  </table>
+    <tr><td><code>solutions</code></td><td class="sig">typedef list&lt;list&lt;shared_ptr&lt;vertex&gt;&gt;&gt;</td><td>Collection of routes (each target&rarr;origin).</td></tr>
+    <tr><td><code>make</code></td><td class="sig">make(origin, target) &rarr; shared_ptr&lt;navigator&gt;</td><td>Builds a navigator.</td></tr>
+    <tr><td><code>navigate</code></td><td class="sig">navigate(nav, world, counter, solutions, flags = {})</td><td>Greedy best-first search; appends every found route to <i>solutions</i>.</td></tr>
+  </table></div>
 
-  <h3>struct counter <span style="font-weight:400;color:var(--ink-faint)">(abstract)</span></h3>
-  <table>
+  <h3>struct navigator::flags</h3>
+  <div class="table-wrap"><table>
+    <tr><th>Member</th><th>Type</th><th>Description</th></tr>
+    <tr><td><code>next_steps_limit</code></td><td class="sig">std::optional&lt;int&gt;</td><td>When set, each search level's frontier is sorted by remaining distance and truncated to at most this many candidate steps. Speeds up large searches by ignoring low-promise branches.</td></tr>
+  </table></div>
+
+  <h3>struct counter <span style="font-weight:400;color:var(--text-faint)">(abstract)</span></h3>
+  <div class="table-wrap"><table>
     <tr><th>Member</th><th>Description</th></tr>
-    <tr><td><code>done() → bool</code></td><td>True when the search should stop.</td></tr>
+    <tr><td><code>done() &rarr; bool</code></td><td>True when the search should stop.</td></tr>
     <tr><td><code>count()</code></td><td>Called by the navigator each time a solution is recorded.</td></tr>
     <tr><td><code>incremental_counter::make(limit)</code></td><td>Stop after <i>limit</i> solutions.</td></tr>
-    <tr><td><code>timed_counter::make(duration)</code></td><td>Stop after a wall-clock budget (second granularity).</td></tr>
+    <tr><td><code>timed_counter::make(duration)</code></td><td>Stop after a wall-clock budget (whole-second granularity).</td></tr>
     <tr><td><code>incremental_timed_counter::make(limit, duration)</code></td><td>Stop on either condition.</td></tr>
-  </table>
+  </table></div>
 
   <h3>struct step</h3>
-  <table>
+  <div class="table-wrap"><table>
     <tr><th>Member</th><th>Description</th></tr>
     <tr><td><code>vertex</code> / <code>predecessor</code> / <code>distance</code> / <code>successors</code></td><td>Search-tree node: where it stands, where it came from, remaining distance, children.</td></tr>
     <tr><td><code>make(vertex, predecessor, distance)</code></td><td>Allocates a step.</td></tr>
     <tr><td><code>walkthrough(leaf)</code></td><td>Flattens the predecessor chain into a vertex list (target first, origin last).</td></tr>
-    <tr><td><code>unique(step, vertex)</code></td><td>Cycle guard: true if <i>vertex</i> isn't already in the chain (pointer identity).</td></tr>
+    <tr><td><code>unique(step, vertex)</code></td><td>Cycle guard: true if <i>vertex</i> is not already in the chain (pointer identity).</td></tr>
     <tr><td><code>add_successor(s, ss)</code></td><td>Registers a child step.</td></tr>
     <tr><td><code>print(step)</code></td><td>Debug: prints the chain to stdout.</td></tr>
-  </table>
+  </table></div>
 </section>
 
 <!-- ================= REFERENCE: IMPORTER ================= -->
 <section id="ref-importer">
-  <h2><span class="kicker">Reference</span><code>geoma::importer</code> <span class="pill io">io</span></h2>
-  <table>
+  <h2><a class="anchor" href="#ref-importer" aria-label="Link to this section">#</a><span class="kicker">Reference</span><code>geoma::importer</code> <span class="pill io">io</span></h2>
+  <div class="table-wrap"><table>
     <tr><th>Function</th><th>Signature</th><th>Description</th></tr>
-    <tr><td><code>osm::import</code></td><td class="sig">(filename) → list&lt;shared_ptr&lt;vertex&gt;&gt;</td><td>Reads an .osm XML file; keeps only vertices that belong to a highway way.</td></tr>
-    <tr><td><code>geojson::import</code></td><td class="sig">(filename) → list&lt;shared_ptr&lt;vertex&gt;&gt;</td><td>Reads a GeoJSON feature collection into a path graph; returns {} on parse failure.</td></tr>
-    <tr><td><code>private_::read_file</code></td><td class="sig">(file_name) → std::string</td><td>Internal helper — slurps a file with a big-file warning. Not part of the public API.</td></tr>
-  </table>
+    <tr><td><code>osm::import</code></td><td class="sig">(filename) &rarr; list&lt;shared_ptr&lt;vertex&gt;&gt;</td><td>Reads an .osm XML file; keeps only vertices that belong to a highway way.</td></tr>
+    <tr><td><code>geojson::import</code></td><td class="sig">(filename) &rarr; list&lt;shared_ptr&lt;vertex&gt;&gt;</td><td>Reads a GeoJSON feature collection into a path graph; returns {} on parse failure.</td></tr>
+    <tr><td><code>native::import</code></td><td class="sig">(filename) &rarr; list&lt;shared_ptr&lt;vertex&gt;&gt;</td><td>Reads a native binary dump back into a world; returns {} on any integrity-check failure.</td></tr>
+    <tr><td><code>private_::read_file</code></td><td class="sig">(file_name) &rarr; std::string</td><td>Internal helper — slurps a file with a big-file warning. Not part of the public API.</td></tr>
+  </table></div>
 </section>
 
 <!-- ================= REFERENCE: EXPORTER ================= -->
 <section id="ref-exporter">
-  <h2><span class="kicker">Reference</span><code>geoma::exporter</code> <span class="pill io">io</span></h2>
-  <table>
-    <tr><th>Function</th><th>Signature</th><th>Returns false when…</th></tr>
-    <tr><td><code>svg::export_</code></td><td class="sig">(world, filename, zoom) → bool</td><td>World empty, zero extent, or file can't open.</td></tr>
-    <tr><td><code>native::export_</code></td><td class="sig">(world, filename) → bool</td><td>World empty, file can't open, or a ghost vertex is detected.</td></tr>
-    <tr><td><code>links::export_</code></td><td class="sig">(world, filename) → bool</td><td>World empty (a failed open only logs — the dump is skipped).</td></tr>
-  </table>
+  <h2><a class="anchor" href="#ref-exporter" aria-label="Link to this section">#</a><span class="kicker">Reference</span><code>geoma::exporter</code> <span class="pill io">io</span></h2>
+  <div class="table-wrap"><table>
+    <tr><th>Function</th><th>Signature</th><th>Returns false when&hellip;</th></tr>
+    <tr><td><code>svg::export_</code></td><td class="sig">(world, filename, zoom) &rarr; bool</td><td>World empty, zero extent, or file cannot be opened.</td></tr>
+    <tr><td><code>native::export_</code></td><td class="sig">(world, filename) &rarr; bool</td><td>World empty, file cannot be opened, or a ghost vertex is detected.</td></tr>
+    <tr><td><code>links::export_</code></td><td class="sig">(world, filename) &rarr; bool</td><td>World empty, or the file cannot be opened (the dump is skipped).</td></tr>
+  </table></div>
   <p>The trailing underscore in <code>export_</code> exists because <code>export</code> is a C++ keyword.</p>
 </section>
 
 <!-- ================= REFERENCE: EXPERIMENTAL ================= -->
 <section id="ref-experimental">
-  <h2><span class="kicker">Reference</span><code>geoma::experimental</code> <span class="pill exp">experimental</span></h2>
-  <table>
+  <h2><a class="anchor" href="#ref-experimental" aria-label="Link to this section">#</a><span class="kicker">Reference</span><code>geoma::experimental</code> <span class="pill exp">experimental</span></h2>
+  <div class="table-wrap"><table>
     <tr><th>Function</th><th>Signature</th><th>Effect on the world</th><th>Returns</th></tr>
-    <tr><td><code>dissolve</code></td><td class="sig">(world, threshold)</td><td>Merges vertices closer than <i>threshold</i>; survivor inherits the edges.</td><td>Vertices removed</td></tr>
+    <tr><td><code>dissolve</code></td><td class="sig">(world, threshold)</td><td>Merges vertices closer than <i>threshold</i>; the survivor inherits the edges.</td><td>Vertices removed</td></tr>
     <tr><td><code>close</code></td><td class="sig">(world, threshold)</td><td>Snaps degree-1 vertices onto edges within <i>threshold</i>, splitting them at the projection point.</td><td>Snapped dead-ends</td></tr>
     <tr><td><code>subdivide</code></td><td class="sig">(world)</td><td>Splits every pair of crossing edges at their intersection.</td><td>Intersections found</td></tr>
     <tr><td><code>decouple</code></td><td class="sig">(world)</td><td>Removes duplicated neighbor links, preserving order.</td><td>Duplicates removed</td></tr>
-    <tr><td><code>count</code></td><td class="sig">(world, size, connections, display=false)</td><td>Read-only measurement; optionally logs per-vertex detail.</td><td>— (outputs by reference)</td></tr>
-  </table>
-  <div class="callout"><span class="icon">🧪</span><span>
+    <tr><td><code>count</code></td><td class="sig">(world, size, connections, display=false)</td><td>Read-only measurement; optionally logs per-vertex detail.</td><td>&mdash; (outputs by reference)</td></tr>
+    <tr><td><code>equal</code></td><td class="sig">(world, world2) &rarr; bool</td><td>Order-sensitive structural comparison: sizes, per-vertex coordinates and neighbor lists must match in sequence. Used to verify binary round-trips.</td><td>true when identical</td></tr>
+  </table></div>
+  <div class="callout warn"><span class="label">Performance</span><p>
     The namespace name is honest: these are research-grade utilities with quadratic worst cases.
-    They're perfect for regional extracts; for continents, measure first and apply selectively.
-  </span></div>
+    They work well for regional extracts; for continents, measure first and apply selectively.
+  </p></div>
 </section>
 
 <!-- ================= REFERENCE: MISC ================= -->
 <section id="ref-misc">
-  <h2><span class="kicker">Reference</span><code>geoma::misc</code> <span class="pill util">utility</span></h2>
-  <table>
+  <h2><a class="anchor" href="#ref-misc" aria-label="Link to this section">#</a><span class="kicker">Reference</span><code>geoma::misc</code> <span class="pill util">utility</span></h2>
+  <div class="table-wrap"><table>
     <tr><th>Class</th><th>Description</th></tr>
     <tr>
       <td><code>thread_pool</code></td>
       <td>Fixed-size worker pool. <code>thread_pool(count)</code> defaults to hardware concurrency;
           <code>enqueue(task)</code> schedules any <code>std::function&lt;void()&gt;</code>; destruction waits for
-          all queued work. Tasks run in arbitrary threads — bring your own mutex for shared data.</td>
+          all queued work. Tasks run in arbitrary threads — synchronize shared data yourself.</td>
     </tr>
-  </table>
+  </table></div>
 </section>
 
 <!-- ================= FAQ ================= -->
 <section id="faq">
-  <h2><span class="kicker">Help</span>FAQ</h2>
+  <h2><a class="anchor" href="#faq" aria-label="Link to this section">#</a><span class="kicker">Help</span>FAQ</h2>
 
   <div class="card">
     <h4>Where do I get data to feed it?</h4>
     <p>
-      Any <code>.osm</code> export (e.g. from <a href="https://overpass-api.de" target="_blank" rel="noopener">Overpass
-      Turbo</a> or Geofabrik extracts) or any GeoJSON with linear features. Start small — a neighborhood is
-      plenty while you learn the API.
+      Any <code>.osm</code> export. Start small — a neighborhood is
+      plenty while learning the API.
     </p>
   </div>
   <div class="card">
-    <h4>My SVG is blank / tiny / enormous. What gives?</h4>
+    <h4>My SVG is blank, tiny or enormous. Why?</h4>
     <p>
-      Three suspects: an <strong>empty world</strong> (import failed — check the log lines),
-      a <strong>zoom</strong> that doesn't match your coordinate scale (try <code>1e5</code> for degrees),
-      or a <strong>zero-extent</strong> world (all points identical — the exporter refuses that politely).
+      Three usual suspects: an <strong>empty world</strong> (import failed — check the log lines),
+      a <strong>zoom</strong> that does not match your coordinate scale (try <code>1e5</code> for degrees),
+      or a <strong>zero-extent</strong> world (all points identical — the exporter refuses that case).
     </p>
   </div>
   <div class="card">
     <h4>The navigator finds no solutions. Why?</h4>
     <p>
       Check in order: (1) is the world non-empty? (2) are origin and target actually <em>near</em> the world —
-      they're snapped to the closest vertices, but if the graph is disconnected there may be no path at all;
-      (3) is your budget generous enough? Try <code>incremental_timed_counter::make(100, 30s)</code> and see
-      what turns up.
+      they are snapped to the closest vertices, but if the graph is disconnected there may be no path at all;
+      (3) is your budget generous enough? Try <code>incremental_timed_counter::make(100, 30s)</code>.
+      Conversely, if searches are slow, cap the frontier with
+      <code>navigator::flags{.next_steps_limit = 3}</code>.
     </p>
   </div>
   <div class="card">
     <h4>What units are the thresholds in?</h4>
     <p>
-      Whatever your coordinates are in. For lat/lon data, <code>1e-5</code> degrees ≈ 1.1 m at the equator, so
-      <code>5e-5</code> ≈ 5 m — the values used in the demos. There is no geodesic math: distances are plain
-      Euclidean on the raw coordinates, which is fine at city scale.
+      Whatever your coordinates are in. For lat/lon data, <code>1e-5</code> degrees &asymp; 1.1&nbsp;m at the
+      equator, so <code>5e-5</code> &asymp; 5&nbsp;m — the values used in the demos. There is no geodesic
+      math: distances are plain Euclidean on the raw coordinates, which is adequate at city scale.
     </p>
   </div>
   <div class="card">
     <h4>Are edges one-way or two-way?</h4>
     <p>
-      The graph itself supports both; <code>join</code> is one-way and the importers call it twice, so imported
-      worlds are two-way. If you want one-way streets, build them with single <code>join</code> calls.
+      The graph supports both; <code>join</code> is one-way and the importers call it twice, so imported
+      worlds are two-way. For one-way streets, build edges with single <code>join</code> calls.
     </p>
   </div>
   <div class="card">
     <h4>Can I use geoma as a library instead of the demo binary?</h4>
     <p>
-      Yes — include <code>src/geoma.hpp</code>, compile the <code>src/</code> sources with your project
-      (C++20, plus the four dependencies), and follow the tutorial above. The demo <code>main.cpp</code> is
-      just example code you're welcome to gut.
+      Yes — include <code>src/geoma.hpp</code> (plus <code>modules/importer/geojson.hpp</code> or
+      <code>modules/importer/native.hpp</code> when needed), compile the <code>src/</code> sources with your
+      project (C++20, plus the four dependencies), and follow the tutorial above. The demo
+      <code>main.cpp</code> is example code you are welcome to gut.
     </p>
   </div>
 </section>
 
 <!-- ================= GLOSSARY ================= -->
 <section id="glossary">
-  <h2><span class="kicker">Help</span>Glossary</h2>
-  <table>
+  <h2><a class="anchor" href="#glossary" aria-label="Link to this section">#</a><span class="kicker">Help</span>Glossary</h2>
+  <div class="table-wrap"><table>
     <tr><th>Term</th><th>Meaning</th></tr>
     <tr><td><strong>world</strong></td><td>A <code>std::list&lt;std::shared_ptr&lt;vertex&gt;&gt;</code> — the graph every function operates on.</td></tr>
     <tr><td><strong>vertex</strong></td><td>A 2D point plus its neighbor list; one graph node.</td></tr>
     <tr><td><strong>neighbor</strong></td><td>A vertex appearing in another vertex's list — i.e. one end of a directed edge.</td></tr>
     <tr><td><strong>step</strong></td><td>One node of the navigator's search tree: a vertex plus its predecessor.</td></tr>
+    <tr><td><strong>frontier</strong></td><td>The candidate steps of the current search level; sorted by remaining distance and optionally truncated via <code>flags.next_steps_limit</code>.</td></tr>
     <tr><td><strong>counter</strong></td><td>The budget object that tells the search when to stop.</td></tr>
     <tr><td><strong>solution</strong></td><td>A completed route: a list of vertices from target back to origin.</td></tr>
     <tr><td><strong>dead-end</strong></td><td>A vertex with exactly one neighbor — prime candidate for <code>close</code>.</td></tr>
     <tr><td><strong>ghost vertex</strong></td><td>A neighbor referenced from a world vertex but absent from the world list itself; breaks binary export.</td></tr>
     <tr><td><strong>degree</strong></td><td>How many neighbors a vertex has (shown in the SVG labels).</td></tr>
-  </table>
+  </table></div>
 </section>
 
 <footer>
   <p>
-    geoma documentation · generated from the source in <code>src/</code> · the palette of this page
-    (<span style="color:var(--accent)">■</span> roads, <span style="color:var(--blue)">■</span> vertices)
-    matches geoma's own SVG exporter. Happy routing! 🧭
+    geoma documentation · written against the sources in <code>src/</code>
   </p>
 </footer>
 
 </main>
 </div>
 
+<button class="backtop" id="backtop" aria-label="Back to top">
+  <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+
 <script>
-  // Copy buttons on code blocks
-  document.querySelectorAll('.copy').forEach(function(btn){
-    btn.addEventListener('click', function(){
+(function () {
+  'use strict';
+
+  /* ---------- theme toggle ---------- */
+  function toggleTheme() {
+    var current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    var next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('geoma-theme', next); } catch (e) {}
+  }
+  document.querySelectorAll('.theme-toggle').forEach(function (btn) {
+    btn.addEventListener('click', toggleTheme);
+  });
+
+  /* ---------- copy buttons ---------- */
+  document.querySelectorAll('.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
       var pre = btn.closest('.code').querySelector('pre');
-      navigator.clipboard.writeText(pre.innerText).then(function(){
-        var old = btn.textContent;
-        btn.textContent = 'copied ✓';
-        setTimeout(function(){ btn.textContent = old; }, 1200);
-      });
+      var done = function () {
+        btn.textContent = 'copied';
+        btn.classList.add('done');
+        setTimeout(function () { btn.textContent = 'copy'; btn.classList.remove('done'); }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(pre.innerText).then(done);
+      } else {
+        var range = document.createRange();
+        range.selectNodeContents(pre);
+        var sel = window.getSelection();
+        sel.removeAllRanges(); sel.addRange(range);
+        try { document.execCommand('copy'); done(); } catch (e) {}
+        sel.removeAllRanges();
+      }
     });
   });
 
-  // Scroll-spy for the sidebar
-  var links = Array.prototype.slice.call(document.querySelectorAll('nav.toc a[href^="#"]'));
-  var targets = links.map(function(a){ return document.getElementById(a.getAttribute('href').slice(1)); });
-  function spy(){
-    var best = 0, bestTop = -Infinity;
-    targets.forEach(function(t, i){
-      if(!t) return;
-      var top = t.getBoundingClientRect().top;
-      if(top <= 120 && top > bestTop){ bestTop = top; best = i; }
-    });
-    links.forEach(function(a, i){ a.classList.toggle('active', i === best); });
+  /* ---------- mobile drawer ---------- */
+  var toc = document.getElementById('toc');
+  var menuBtn = document.getElementById('menu-btn');
+  var backdrop = document.getElementById('backdrop');
+  function setDrawer(open) {
+    toc.classList.toggle('open', open);
+    backdrop.classList.toggle('show', open);
+    if (menuBtn) menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
   }
-  window.addEventListener('scroll', spy, {passive:true});
+  if (menuBtn) menuBtn.addEventListener('click', function () { setDrawer(!toc.classList.contains('open')); });
+  backdrop.addEventListener('click', function () { setDrawer(false); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setDrawer(false); });
+
+  /* ---------- scroll-spy ---------- */
+  var links = Array.prototype.slice.call(document.querySelectorAll('nav.toc a[href^="#"]'));
+  var targets = links.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); });
+  function spy() {
+    var best = 0, bestTop = -Infinity;
+    targets.forEach(function (t, i) {
+      if (!t) return;
+      var top = t.getBoundingClientRect().top;
+      if (top <= 140 && top > bestTop) { bestTop = top; best = i; }
+    });
+    // At the very bottom, force the last section active.
+    if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 4) {
+      best = links.length - 1;
+    }
+    links.forEach(function (a, i) { a.classList.toggle('active', i === best); });
+  }
+  window.addEventListener('scroll', spy, { passive: true });
   spy();
+
+  /* ---------- close drawer after picking a section (mobile) ---------- */
+  links.forEach(function (a) {
+    a.addEventListener('click', function () { setDrawer(false); });
+  });
+
+  /* ---------- back to top ---------- */
+  var backtop = document.getElementById('backtop');
+  window.addEventListener('scroll', function () {
+    backtop.classList.toggle('show', window.scrollY > 600);
+  }, { passive: true });
+  backtop.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
 </script>
 </body>
 </html>
